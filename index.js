@@ -11,6 +11,8 @@ const Intern = require("./lib/Intern");
 const teamArray = [];
 
 const addEmployee = (role = "manager") => {
+  //set boolean to indicate if the employee is a manager
+  let isManager = role === "manager" ? true : false;
   return inquirer
     .prompt([
       {
@@ -30,15 +32,24 @@ const addEmployee = (role = "manager") => {
       },
       {
         type: "input",
-        name: "officeNumber",
-        message: `What is the ${role}'s office number?`,
+        name: "additional",
+        message: `What is the ${role}'s ${
+          isManager ? "office number" : "github"
+        }?`,
       },
     ])
     .then((userInput) => {
-      const { name, id, email, officeNumber } = userInput;
-      const manager = new Manager(name, id, email, officeNumber);
+      const { name, id, email, additional } = userInput;
+      let employee = {};
+      if (role === "engineer") {
+        employee = new Engineer(name, id, email, additional);
+      } else if (role === "intern") {
+        employee = new Intern(name, id, email, additional);
+      } else {
+        employee = new Manager(name, id, email, additional);
+      }
 
-      teamArray.push(manager);
+      teamArray.push(employee);
     })
     .then(() => {
       return inquirer
@@ -59,7 +70,7 @@ const addEmployee = (role = "manager") => {
               addEmployee("intern");
               break;
             default:
-              // Finish
+              fs.writeFileSync("./dist/index.html", generateHtml(teamArray));
               break;
           }
         });
